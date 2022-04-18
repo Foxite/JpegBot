@@ -18,7 +18,7 @@ DiscordAttachment? GetImage(DiscordMessage message) {
 	return message.Attachments.FirstOrDefault(att => att.MediaType.StartsWith("image/"));
 }
 
-var regex = new Regex("needs? ?more ?jpe?g");
+var regex = new Regex("needs? ?more ?jpe?g", RegexOptions.IgnoreCase);
 
 discord.MessageCreated += (dc, args) => {
 	if (!args.Author.IsBot && regex.IsMatch(args.Message.Content)) {
