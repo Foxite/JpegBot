@@ -1,0 +1,19 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Publish Docker
+      uses: elgohr/Publish-Docker-Github-Action@3.04
+      with:
+        name: jpegbot
+        registry: ${{ secrets.PUSH_REPO }}
+        username: ${{ secrets.PUSH_USER }}
+        password: ${{ secrets.PUSH_PASSWD }}
+        default_branch: master
