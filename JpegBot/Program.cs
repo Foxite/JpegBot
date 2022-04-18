@@ -1,4 +1,5 @@
-﻿using DSharpPlus;
+﻿using System.Text.RegularExpressions;
+using DSharpPlus;
 using DSharpPlus.Entities;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
@@ -17,8 +18,10 @@ DiscordAttachment? GetImage(DiscordMessage message) {
 	return message.Attachments.FirstOrDefault(att => att.MediaType.StartsWith("image/"));
 }
 
+var regex = new Regex("needs? ?more ?jpe?g");
+
 discord.MessageCreated += (dc, args) => {
-	if (!args.Author.IsBot && (args.Message.Content.ToLower() == "needs more jpeg" || args.Message.Content.ToLower() == "needs more jpg")) {
+	if (!args.Author.IsBot && regex.IsMatch(args.Message.Content)) {
 		_ = Task.Run(async () => {
 			DiscordAttachment? attachment =
 				GetImage(args.Message) ??
