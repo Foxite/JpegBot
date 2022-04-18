@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JpegBot", "JpegBot\JpegBot.csproj", "{5BB44149-38ED-41D4-BCB2-423EC70FFDBF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5BB44149-38ED-41D4-BCB2-423EC70FFDBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BB44149-38ED-41D4-BCB2-423EC70FFDBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BB44149-38ED-41D4-BCB2-423EC70FFDBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BB44149-38ED-41D4-BCB2-423EC70FFDBF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
