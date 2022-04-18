@@ -3,10 +3,9 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["JpegBot/JpegBot.csproj", "JpegBot/"]
-RUN dotnet restore "JpegBot/JpegBot.csproj"
+COPY ["JpegBot.csproj", "./"]
+RUN dotnet restore "JpegBot.csproj"
 COPY . .
-WORKDIR "/src/JpegBot"
 RUN dotnet build "JpegBot.csproj" -c Release -o /app/build
 
 FROM build AS publish
