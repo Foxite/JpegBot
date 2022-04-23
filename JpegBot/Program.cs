@@ -2,7 +2,6 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
@@ -14,8 +13,8 @@ var discord = new DiscordClient(new DiscordConfiguration() {
 
 var http = new HttpClient();
 
-DiscordAttachment? GetImage(DiscordMessage message) {
-	return message.Attachments.FirstOrDefault(att => att.MediaType.StartsWith("image/"));
+string? GetImageUrl(DiscordMessage message) {
+	return message.Attachments.FirstOrDefault(att => att.MediaType.StartsWith("image/"))?.Url ?? message.Embeds.FirstOrDefault(embed => embed.Image != null)?.Image.Url.ToString();
 }
 
 var regex = new Regex("needs? ?more ?jpe?g", RegexOptions.IgnoreCase);
@@ -23,17 +22,17 @@ var regex = new Regex("needs? ?more ?jpe?g", RegexOptions.IgnoreCase);
 discord.MessageCreated += (dc, args) => {
 	if (!args.Author.IsBot && regex.IsMatch(args.Message.Content)) {
 		_ = Task.Run(async () => {
-			DiscordAttachment? attachment =
-				GetImage(args.Message) ??
-				GetImage(args.Message.ReferencedMessage) ??
-				GetImage((await args.Channel.GetMessagesBeforeAsync(args.Message.Id, 1))[0]);
+			string? attachmentUrl =
+				GetImageUrl(args.Message) ??
+				GetImageUrl(args.Message.ReferencedMessage) ??
+				GetImageUrl((await args.Channel.GetMessagesBeforeAsync(args.Message.Id, 1))[0]);
 			
-			if (attachment == null) {
+			if (attachmentUrl == null) {
 				return;
 			}
 			
 			Image image;
-			await using (Stream download = await http.GetStreamAsync(attachment.Url)) {
+			await using (Stream download = await http.GetStreamAsync(attachmentUrl)) {
 				image = await Image.LoadAsync(download);
 			}
 			
@@ -45,7 +44,7 @@ discord.MessageCreated += (dc, args) => {
 				};
 				await image.SaveAsJpegAsync(ms, jpegEncoder);
 				ms.Seek(0, SeekOrigin.Begin);
-				await args.Message.RespondAsync(dmb => dmb.WithFile(attachment.FileName, ms));
+				await args.Message.RespondAsync(dmb => dmb.WithFile("more.jpg", ms));
 			}
 		});
 	}
