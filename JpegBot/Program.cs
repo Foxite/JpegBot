@@ -25,7 +25,7 @@ discord.MessageCreated += (dc, args) => {
 			string? attachmentUrl =
 				GetImageUrl(args.Message) ??
 				GetImageUrl(args.Message.ReferencedMessage) ??
-				GetImageUrl((await args.Channel.GetMessagesBeforeAsync(args.Message.Id, 1))[0]);
+				(await args.Channel.GetMessagesBeforeAsync(args.Message.Id - 1, 5)).OrderByDescending(message => message.CreationTimestamp).Select(GetImageUrl).FirstOrDefault(url => url != null);
 			
 			if (attachmentUrl == null) {
 				return;
