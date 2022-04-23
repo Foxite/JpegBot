@@ -22,29 +22,33 @@ var regex = new Regex("needs? ?more ?jpe?g", RegexOptions.IgnoreCase);
 discord.MessageCreated += (dc, args) => {
 	if (!args.Author.IsBot && regex.IsMatch(args.Message.Content)) {
 		_ = Task.Run(async () => {
-			string? attachmentUrl =
-				GetImageUrl(args.Message) ??
-				GetImageUrl(args.Message.ReferencedMessage) ??
-				(await args.Channel.GetMessagesBeforeAsync(args.Message.Id - 1, 5)).OrderByDescending(message => message.CreationTimestamp).Select(GetImageUrl).FirstOrDefault(url => url != null);
-			
-			if (attachmentUrl == null) {
-				return;
-			}
-			
-			Image image;
-			await using (Stream download = await http.GetStreamAsync(attachmentUrl)) {
-				image = await Image.LoadAsync(download);
-			}
-			
-			image.Mutate(ctx => ctx.Resize(ctx.GetCurrentSize() * 3 / 4, new NearestNeighborResampler(), true));
+			try {
+				string? attachmentUrl =
+					GetImageUrl(args.Message) ??
+					GetImageUrl(args.Message.ReferencedMessage) ??
+					(await args.Channel.GetMessagesBeforeAsync(args.Message.Id - 1, 5)).OrderByDescending(message => message.CreationTimestamp).Select(GetImageUrl).FirstOrDefault(url => url != null);
 
-			await using (var ms = new MemoryStream()) {
-				var jpegEncoder = new JpegEncoder() {
-					Quality = image.Metadata.GetJpegMetadata().Quality / 8
-				};
-				await image.SaveAsJpegAsync(ms, jpegEncoder);
-				ms.Seek(0, SeekOrigin.Begin);
-				await args.Message.RespondAsync(dmb => dmb.WithFile("more.jpg", ms));
+				if (attachmentUrl == null) {
+					return;
+				}
+
+				Image image;
+				await using (Stream download = await http.GetStreamAsync(attachmentUrl)) {
+					image = await Image.LoadAsync(download);
+				}
+
+				image.Mutate(ctx => ctx.Resize(ctx.GetCurrentSize() * 3 / 4, new NearestNeighborResampler(), true));
+
+				await using (var ms = new MemoryStream()) {
+					var jpegEncoder = new JpegEncoder() {
+						Quality = image.Metadata.GetJpegMetadata().Quality / 8
+					};
+					await image.SaveAsJpegAsync(ms, jpegEncoder);
+					ms.Seek(0, SeekOrigin.Begin);
+					await args.Message.RespondAsync(dmb => dmb.WithFile("more.jpg", ms));
+				}
+			} catch (Exception e) {
+				Console.WriteLine(e);
 			}
 		});
 	}
