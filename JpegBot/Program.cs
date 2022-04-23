@@ -13,7 +13,10 @@ var discord = new DiscordClient(new DiscordConfiguration() {
 
 var http = new HttpClient();
 
-string? GetImageUrl(DiscordMessage message) {
+string? GetImageUrl(DiscordMessage? message) {
+	if (message == null) {
+		return null;
+	}
 	return message.Attachments.FirstOrDefault(att => att.MediaType.StartsWith("image/"))?.Url ?? message.Embeds.FirstOrDefault(embed => embed.Image != null)?.Image.Url.ToString();
 }
 
@@ -26,7 +29,7 @@ discord.MessageCreated += (dc, args) => {
 				string? attachmentUrl =
 					GetImageUrl(args.Message) ??
 					GetImageUrl(args.Message.ReferencedMessage) ??
-					(await args.Channel.GetMessagesBeforeAsync(args.Message.Id - 1, 5)).OrderByDescending(message => message.CreationTimestamp).Select(GetImageUrl).FirstOrDefault(url => url != null);
+					(await args.Channel.GetMessagesBeforeAsync(args.Message.Id - 1, 5)).Select(GetImageUrl).FirstOrDefault(url => url != null);
 
 				if (attachmentUrl == null) {
 					return;
